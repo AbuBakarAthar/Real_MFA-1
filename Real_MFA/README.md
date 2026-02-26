@@ -137,6 +137,18 @@ Visit: http://localhost:8000/admin/
    bash config/monitor.sh
    ```
 
+### Docker Deployment (Recommended for Droplets)
+
+```bash
+cp .env.docker.example .env.docker
+# edit .env.docker with production values
+
+docker compose -f docker-compose.ubuntu.yml up -d --build
+docker compose -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
+```
+
+Detailed guide: `DOCKER_UBUNTU_DEPLOYMENT.md`
+
 ### Environment Variables for Production
 
 See `.env.example` for all variables. Key production settings:
@@ -173,6 +185,7 @@ CSRF_COOKIE_SECURE=True
 ## 📚 Documentation
 
 - [Deployment Guide](docs/DIGITALOCEAN_DROPLET_COMPLETE_SETUP.md) - Complete Ubuntu setup
+- [Docker Ubuntu Deployment](DOCKER_UBUNTU_DEPLOYMENT.md) - Docker Compose deployment on droplet
 - [Quick Reference](config/QUICK_REFERENCE.md) - Common commands
 - [Pre-Deployment Checklist](config/PRE_DEPLOYMENT_CHECKLIST.md) - Final verification
 - [Architecture Overview](docs/README_REFACTORED_ARCHITECTURE.md) - System design

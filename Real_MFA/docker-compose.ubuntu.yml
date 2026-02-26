@@ -1,0 +1,104 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: real_mfa_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: real_mfa_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: real_mfa_web
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["/app/docker/entrypoint-web.sh"]
+    volumes:
+      - static_data:/app/staticfiles
+      - media_data:/app/media
+      - app_logs:/app/logs
+    expose:
+      - "8000"
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: real_mfa_celery
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["celery", "-A", "Real_MFA", "worker", "--loglevel=info"]
+    volumes:
+      - app_logs:/app/logs
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: real_mfa_celery_beat
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["celery", "-A", "Real_MFA", "beat", "--loglevel=info", "--scheduler", "django_celery_beat.schedulers:DatabaseScheduler"]
+    volumes:
+      - app_logs:/app/logs
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: real_mfa_nginx
+    restart: unless-stopped
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_data:/app/staticfiles:ro
+      - media_data:/app/media:ro
+
+volumes:
+  postgres_data:
+  redis_data:
+  static_data:
+  media_data:
+  app_logs:

@@ -2,6 +2,18 @@
 
 Read the complete setup guide: [DIGITALOCEAN_DROPLET_COMPLETE_SETUP.md](docs/DIGITALOCEAN_DROPLET_COMPLETE_SETUP.md)
 
+Docker deployment guide: [DOCKER_UBUNTU_DEPLOYMENT.md](DOCKER_UBUNTU_DEPLOYMENT.md)
+
+### Docker Quick Start (Ubuntu Droplet)
+
+```bash
+cp .env.docker.example .env.docker
+nano .env.docker
+
+docker compose -f docker-compose.ubuntu.yml up -d --build
+docker compose -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
+```
+
 ### Quick Start
 
 1. **Install Dependencies**
