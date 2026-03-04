@@ -51,6 +51,28 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Wait for Postgres and Redis
+        run: |
+          python - << 'PY'
+          import socket
+          import time
+
+          def wait(name, host, port, timeout=60):
+              start = time.time()
+              while True:
+                  try:
+                      with socket.create_connection((host, port), timeout=2):
+                          print(f"{name} ready on {host}:{port}")
+                          return
+                  except OSError:
+                      if time.time() - start > timeout:
+                          raise SystemExit(f"Timeout waiting for {name} on {host}:{port}")
+                      time.sleep(2)
+
+          wait("postgres", "127.0.0.1", 5432)
+          wait("redis", "127.0.0.1", 6379)
+          PY
+
       - name: Django system checks
         env:
           ENVIRONMENT: production
