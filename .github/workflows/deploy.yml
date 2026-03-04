@@ -8,8 +8,40 @@ on:
     types: [completed]
 
 jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      can_deploy: ${{ steps.gate.outputs.can_deploy }}
+    steps:
+      - name: Check deploy prerequisites
+        id: gate
+        shell: bash
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          APP_PATH: ${{ secrets.APP_PATH }}
+          GHCR_PAT: ${{ secrets.GHCR_PAT }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ] && [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
+            echo "can_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping deploy because CI did not succeed."
+            exit 0
+          fi
+
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_USER" ] || [ -z "$SSH_PRIVATE_KEY" ] || [ -z "$APP_PATH" ] || [ -z "$GHCR_PAT" ] || [ -z "$GHCR_USERNAME" ]; then
+            echo "can_deploy=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping deploy: required secrets are missing."
+            exit 0
+          fi
+
+          echo "can_deploy=true" >> "$GITHUB_OUTPUT"
+          echo "Deploy prerequisites are satisfied."
+
   deploy:
-    if: ${{ (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success') && secrets.SSH_HOST != '' && secrets.SSH_USER != '' && secrets.SSH_PRIVATE_KEY != '' && secrets.APP_PATH != '' && secrets.GHCR_PAT != '' && secrets.GHCR_USERNAME != '' }}
+    needs: precheck
+    if: ${{ needs.precheck.outputs.can_deploy == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
