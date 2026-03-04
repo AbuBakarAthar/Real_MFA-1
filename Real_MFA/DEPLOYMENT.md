@@ -10,8 +10,8 @@ Docker deployment guide: [DOCKER_UBUNTU_DEPLOYMENT.md](DOCKER_UBUNTU_DEPLOYMENT.
 cp .env.docker.example .env.docker
 nano .env.docker
 
-docker compose -f docker-compose.ubuntu.yml up -d --build
-docker compose -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml up -d --build
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
 ```
 
 ### Quick Start

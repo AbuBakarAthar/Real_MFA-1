@@ -45,20 +45,20 @@ Minimum required edits in `.env.docker`:
 ## 3) Build and run stack
 
 ```bash
-docker compose -f docker-compose.ubuntu.yml up -d --build
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml up -d --build
 ```
 
 Check status:
 
 ```bash
-docker compose -f docker-compose.ubuntu.yml ps
-docker compose -f docker-compose.ubuntu.yml logs -f web
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml ps
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml logs -f web
 ```
 
 ## 4) Create Django superuser
 
 ```bash
-docker compose -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
 ```
 
 ## 5) Open firewall ports (if UFW enabled)
@@ -80,18 +80,18 @@ Current stack serves HTTP on port 80. For production HTTPS you can:
 
 ```bash
 # Restart services
-docker compose -f docker-compose.ubuntu.yml restart
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml restart
 
 # Stop services
-docker compose -f docker-compose.ubuntu.yml down
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml down
 
 # Update deployment
 git pull origin main
-docker compose -f docker-compose.ubuntu.yml up -d --build
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml up -d --build
 
 # View logs
-docker compose -f docker-compose.ubuntu.yml logs -f web
-docker compose -f docker-compose.ubuntu.yml logs -f celery
-docker compose -f docker-compose.ubuntu.yml logs -f celery_beat
-docker compose -f docker-compose.ubuntu.yml logs -f nginx
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml logs -f web
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml logs -f celery
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml logs -f celery_beat
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml logs -f nginx
 ```

@@ -143,8 +143,8 @@ Visit: http://localhost:8000/admin/
 cp .env.docker.example .env.docker
 # edit .env.docker with production values
 
-docker compose -f docker-compose.ubuntu.yml up -d --build
-docker compose -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml up -d --build
+docker compose --env-file .env.docker -f docker-compose.ubuntu.yml exec web python manage.py createsuperuser
 ```
 
 Detailed guide: `DOCKER_UBUNTU_DEPLOYMENT.md`

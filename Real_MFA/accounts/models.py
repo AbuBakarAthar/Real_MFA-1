@@ -48,7 +48,7 @@ class SoftDeleteModel(models.Model):
 # User Model
 # ---------------------------
 class UserManager(BaseUserManager):
-    use_in_migrations = True
+    use_in_migrations = True 
 
     def _create_user(self, email, username, password, **extra_fields):
         if not email:
