@@ -166,11 +166,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.getenv('STATIC_ROOT', BASE_DIR / 'staticfiles')
+STATIC_ROOT = os.getenv('STATIC_ROOT') or str(BASE_DIR / 'staticfiles')
 
 # Media files (User uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.getenv('MEDIA_ROOT', BASE_DIR / 'media')
+MEDIA_ROOT = os.getenv('MEDIA_ROOT') or str(BASE_DIR / 'media')
 
 # Ensure directories exist
 os.makedirs(STATIC_ROOT, exist_ok=True)
